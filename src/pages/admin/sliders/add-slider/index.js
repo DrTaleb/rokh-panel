@@ -1,7 +1,7 @@
 import {Col} from "react-bootstrap";
 import TextField from "@mui/material/TextField";
 import MenuItem from "@mui/material/MenuItem";
-import {useEffect, useState} from "react";
+import {useState} from "react";
 import {FileUploader} from "react-drag-drop-files";
 import Typography from "@mui/material/Typography";
 import Link from "next/link";
@@ -11,8 +11,9 @@ import Swal from "sweetalert2";
 import axios from "axios";
 import Nprogress from "nprogress";
 import {useRouter} from "next/router";
-
+import FormData from 'form-data';
 export default function AddSlider() {
+    const formData = new FormData();
     const router = useRouter()
     const breadcrumbs = [
         <Link className={"text-decoration-none"} underline="hover" key="1" color="inherit" href={"/admin/sliders"}>
@@ -22,12 +23,6 @@ export default function AddSlider() {
             ویرایش اسلایدر
         </Typography>,
     ];
-    const [data, setData] = useState({})
-    useEffect( ()=>{
-        fetch(`${process.env.LOCAL_URL}/api/admin/sliders`)
-            .then(res => res.json())
-            .then(data => setData(data))
-    }, [])
 
     const statusList = [
         {
@@ -59,7 +54,6 @@ export default function AddSlider() {
         event.target.value === 0 || event.target.value === 1 ? setStatusError(false) : setStatusError(true)
     };
     const [file, setFile] = useState(null);
-    const formData = new FormData();
     const handleChange = (file) => {
         setFile(file);
     };

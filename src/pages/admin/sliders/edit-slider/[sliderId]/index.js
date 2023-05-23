@@ -167,13 +167,13 @@ export default function SliderId({data}) {
 }
 export async function getServerSideProps (context){
     const {params,req} = context
-    const userToken = req.cookies.userToken
+    const accessToken = req.cookies.accessToken
     const response = await fetch(`${process.env.SERVER_URL}/page/slides/${params.sliderId}`,{
         method : "GET",
         credentials : 'include',
         headers: {
             'Content-Type': 'application/json; charset=UTF-8',
-            'Authorization' : `Token ${userToken}`
+            'Authorization' : `Bearer ${accessToken}`
         },
     })
     const data = await response.json()

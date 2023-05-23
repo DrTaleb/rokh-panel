@@ -1,12 +1,12 @@
 export default async function Handler(req, res) {
-    const userToken = req.cookies.userToken
+    const accessToken = req.cookies.accessToken
     if (req.method === "GET"){
         try {
             const dataResponse = await fetch(`${process.env.SERVER_URL}/page/admins/`,{
                 method : "GET",
                 headers : {
                     'Content-Type': 'application/json; charset=UTF-8',
-                    'Authorization' : `Token ${userToken}`
+                    'Authorization' : `Bearer ${accessToken}`
                 }
             })
             const data = await dataResponse.json()
@@ -21,37 +21,22 @@ export default async function Handler(req, res) {
                credentials : 'include',
                headers: {
                    'Content-Type': 'application/json; charset=UTF-8',
-                   'Authorization' : `Token ${userToken}`
+                   'Authorization' : `Bearer ${accessToken}`
                },
                body : JSON.stringify({
-                   mobile : req.body.mobile
+                   username : req.body.username,
+                   password : req.body.password,
+                   password2 : req.body.password2,
+                   is_doctor : req.body.is_doctor,
+                   is_staff : req.body.is_staff,
                })
            }).then(res => res.json()).then(data =>{
-               res.status(200).json({massage : data})
+               res.status(200).json(data)
+               console.log(data)
            })
        }catch {
            res.status(500).json({massage : "ارور سرور"})
        }
-
-    }else if (req.method === "DELETE") {
-        try {
-            await fetch(`${process.env.SERVER_URL}/page/admins/`,{
-                method : "DELETE",
-                credentials : 'include',
-                headers: {
-                    'Content-Type': 'application/json; charset=UTF-8',
-                    'Authorization' : `Token ${userToken}`
-                },
-                body : JSON.stringify({
-                    mobile : req.body.mobile
-                })
-            }).then(res => res.json()).then(data =>{
-                res.status(200).json({massage : data})
-            })
-        }catch  {
-            res.status(500).json({massage : "ارور سرور"})
-        }
-
     }else {
         res.setHeader("Allow", ["post"]);
         res.status(405).json({massage: "not allowed"})

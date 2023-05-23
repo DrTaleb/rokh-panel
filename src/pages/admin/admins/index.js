@@ -7,24 +7,28 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TablePagination from '@mui/material/TablePagination';
 import TableRow from '@mui/material/TableRow';
-import {useEffect, useState} from "react";
+import {useContext, useEffect, useState} from "react";
 import IconButton from "@mui/material/IconButton";
 import DeleteIcon from "@mui/icons-material/Delete";
 import Swal from "sweetalert2";
 import Link from "next/link";
 import {Badge} from "react-bootstrap";
 import {Button} from "@mui/material";
+import BlockIcon from '@mui/icons-material/Block';
+import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
+import AuthContext from "@/contexts/authContext";
 
 const columns = [
     {id: 'id', label: 'آیدی', minWidth: 170},
     {id: 'name', label: 'نام', minWidth: 170, align: "left"},
     {id: 'mobile', label: 'موبایل', minWidth: 170, align: 'left',},
+    {id: 'is_active', label: 'وضعیت', minWidth: 170, align: 'left',},
 ];
 
 export default function Admins({data}) {
 
-
-    const [DATA,setDATA] = useState(data)
+    const {refresh} = useContext(AuthContext)
+    const [DATA, setDATA] = useState(data)
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(10);
     const [getData, setGetData] = useState(false)
@@ -32,61 +36,105 @@ export default function Admins({data}) {
         setPage(newPage);
     };
 
-    const dataFetch = async ()=>{
-        await fetch(`${process.env.LOCAL_URL}/api/admin/admins`, {
-            method : "GET",
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
-            }}).then(res => res.json()).then(data => setDATA(data))
-    }
-    useEffect( ()=> {
-         dataFetch()
-    },[getData])
-
-    function createData(id, name, mobile ,is_superuser,options) {
-        return {id, name,mobile,is_superuser, options};
+    function createData(id, name, mobile, is_superuser, is_active, options) {
+        return {id, name, mobile, is_superuser, is_active, options};
     }
 
     const rows = [];
-    DATA.map(item => rows.push(createData(`${item.id}`, `${item.name}`,`${item.mobile}`, `${item.is_superuser}`),))
-
+    const asyncFunc = ()=>{
+         refresh()
+         DATA.map(item => rows.push(createData(`${item.id}`, `${item.username}`, `${item.phone ? item.phone : "وارد نشده"}`, `${item.is_superuser}`, `${item.is_active ? "فعال" : "غیر فعال"}`),))
+    }
+    asyncFunc()
+    const dataFetch = async () => {
+        await fetch(`${process.env.LOCAL_URL}/api/admin/admins`, {
+            method: "GET",
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            }
+        }).then(res => res.json()).then(data => {
+            setDATA(data)
+            console.log(data)
+        })
+    }
+    useEffect(() => {
+        dataFetch()
+    }, [getData])
 
 
     const handleChangeRowsPerPage = (event) => {
         setRowsPerPage(+event.target);
         setPage(0);
     };
-    const deleteHandler = async (mobile) => {
+    const deleteHandler = async (id) => {
         Swal.fire({
-            text: "آیا از حذف آیتم مورد نظر اطمینان دارید؟",
+            text: "آیا از غیر فعال کردن کارمند مورد نظر اطمینان دارید؟",
             icon: 'warning',
             showCancelButton: true,
             cancelButtonText: "خیر",
-            confirmButtonColor: 'var(--main-purple)',
             cancelButtonColor: '#d33',
             confirmButtonText: 'بله'
         }).then((result) => {
             if (result.isConfirmed) {
-                fetch(`http://localhost:3000/api/admin/admins`, {
-                    method : "DELETE",
+                fetch(`http://localhost:3000/api/admin/admins/delete/${id}`, {
+                    method: "DELETE",
                     headers: {
                         'Accept': 'application/json',
                         'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        mobile : mobile
-                    })
+                    }
                 }).then(res => res.json()).then(data => {
-                    if (data.massage.message === "this user now is not staff"){
+                    console.log(data)
+                    if (data.message === "this user now is not active") {
                         Swal.fire({
-                            text: "کارمند حذف شد",
+                            text: "کارمند غیر فعال شد",
                             icon: 'success',
-                    })
+                        })
                         setGetData(!getData)
-                    }else {
+                    } else if (data.message === "this user is already not active") {
                         Swal.fire({
-                            text: "مشکلی در حذف پیش آمده",
+                            text: "این کارمند از قبل در حالت غیر فعال بوده است",
+                            icon: 'error',
+                        })
+                        setGetData(!getData)
+                    } else {
+                        Swal.fire({
+                            text: "مشکلی پیش آمده",
+                            icon: 'error',
+                        })
+                    }
+                })
+
+            }
+        })
+    }
+    const activeHandler = async (id) => {
+        Swal.fire({
+            text: "آیا از فعال کردن مجدد کارمند مورد نظر اطمینان دارید؟",
+            icon: 'warning',
+            showCancelButton: true,
+            cancelButtonText: "خیر",
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'بله'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                fetch(`http://localhost:3000/api/admin/admins/active/${id}`, {
+                    method: "PUT",
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    }
+                }).then(res => res.json()).then(data => {
+                    console.log(data)
+                    if (data.message === "user changed") {
+                        Swal.fire({
+                            text: "کارمند فعال شد",
+                            icon: 'success',
+                        })
+                        setGetData(!getData)
+                    } else {
+                        Swal.fire({
+                            text: "مشکلی پیش آمده",
                             icon: 'error',
                         })
                     }
@@ -99,9 +147,9 @@ export default function Admins({data}) {
 
     return (
         <div className={"px-4"}>
-            <Paper className={"p-3"} sx={{width: '100%', overflow: 'hidden' , boxShadow: "0 0 1rem rgba(0, 0, 0, .1)"}}>
+            <Paper className={"p-3"} sx={{width: '100%', overflow: 'hidden', boxShadow: "0 0 1rem rgba(0, 0, 0, .1)"}}>
                 <Link href={"/admin/admins/add-admin"}>
-                    <Button className={"ps-2"} variant={"contained"} color={"success"} >افزودن ادمین</Button>
+                    <Button className={"ps-2"} variant={"contained"} color={"success"}>افزودن ادمین و پزشک</Button>
                 </Link>
                 <TableContainer sx={{maxHeight: 600}}>
                     <Table stickyHeader aria-label="sticky table">
@@ -130,7 +178,8 @@ export default function Admins({data}) {
                                             {columns.map((column) => {
                                                 const value = row[column.id];
                                                 return (
-                                                    <TableCell key={column.id} align={column.align}  className={"fw-bold"}>
+                                                    <TableCell key={column.id} align={column.align}
+                                                               className={"fw-bold"}>
                                                         {column.format && typeof value === 'number'
                                                             ? column.format(value)
                                                             : value}
@@ -138,12 +187,20 @@ export default function Admins({data}) {
                                                 );
                                             })}
                                             <TableCell align={"left"}>
-                                                {row.is_superuser === "true" ? <Badge bg="success">ادمین اصلی</Badge>:
-                                                <IconButton color={"error"}
-                                                            onClick={()=> deleteHandler(row.mobile)}
-                                                >
-                                                     <DeleteIcon></DeleteIcon>
-                                                </IconButton>
+                                                {row.is_superuser === "true" ? <Badge bg="success">ادمین اصلی</Badge> :
+                                                    row.is_active === "فعال" ?
+                                                        <IconButton color={"error"}
+                                                                    onClick={() => deleteHandler(row.id)}
+                                                        >
+                                                            <BlockIcon></BlockIcon>
+                                                        </IconButton>
+                                                        :
+                                                        <Button color={"success"}
+                                                                onClick={() => activeHandler(row.id)}
+                                                        >
+                                                            فعال سازی مجدد
+                                                        </Button>
+
                                                 }
                                             </TableCell>
                                         </TableRow>
@@ -171,13 +228,13 @@ export default function Admins({data}) {
 
 export async function getServerSideProps(context) {
     const {req} = context
-    const userToken = req.cookies.userToken
+    const accessToken = req.cookies.accessToken
     // admins list
-    const dataResponse = await fetch(`${process.env.SERVER_URL}/page/admins/`,{
-        method : "GET",
-        headers : {
+    const dataResponse = await fetch(`${process.env.SERVER_URL}/page/admins/`, {
+        method: "GET",
+        headers: {
             'Content-Type': 'application/json; charset=UTF-8',
-            'Authorization' : `Token ${userToken}`
+            'Authorization': `Bearer ${accessToken}`
         }
     })
     const data = await dataResponse.json()

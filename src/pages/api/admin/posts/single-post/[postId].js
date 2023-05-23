@@ -1,12 +1,12 @@
 export default async function Handler(req, res) {
-    const userToken = req.cookies.userToken
+    const accessToken = req.cookies.accessToken
     console.log(req.headers)
     if (req.method === "GET"){
         const dataResponse = await fetch(`${process.env.SERVER_URL}/page/posts/${req.query.postId}/`,{
             method : "GET",
             headers : {
                 'Content-Type': 'application/json; charset=UTF-8',
-                'Authorization' : `Token ${userToken}`
+                'Authorization' : `Bearer ${accessToken}`
             }
         })
         const data = await dataResponse.json()

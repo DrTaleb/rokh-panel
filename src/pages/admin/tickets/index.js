@@ -12,6 +12,7 @@ import {useRouter} from "next/router";
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import {Badge} from "react-bootstrap";
 
+
 const columns = [
     {id: 'id', label: 'آیدی', minWidth: 170},
     {id: 'name', label: 'نام فرستنده', minWidth: 170, align: "left"},
@@ -20,6 +21,7 @@ const columns = [
 ];
 
 export default function Tickets() {
+
 
     const router = useRouter()
     const [DATA, setDATA] = useState([])

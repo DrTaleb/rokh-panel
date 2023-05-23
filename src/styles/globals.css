@@ -659,7 +659,7 @@ a {
   border-right: var(--border-warning) 5px solid;
 }
 .panel-table-card{
-  box-shadow: 0 0 .2rem rgba(0, 0, 0, .1) !important;
+  box-shadow: 0 0 .5rem rgba(0, 0, 0, .2) !important;
   background: var(--white);
   border-radius: 7px;
 }

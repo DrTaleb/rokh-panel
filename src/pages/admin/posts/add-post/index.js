@@ -1,4 +1,4 @@
-import React, {useContext, useEffect, useRef, useState} from 'react';
+import {useContext, useEffect, useState} from 'react';
 import TextField from "@mui/material/TextField";
 import {Button} from "@mui/material";
 import MenuItem from "@mui/material/MenuItem";
@@ -9,13 +9,13 @@ import Nprogress from "nprogress";
 import Swal from "sweetalert2";
 import {useRouter} from "next/router";
 import TextEditor from "@/components/TextEditor";
+import FormData from 'form-data';
 export default function AddPost() {
 
-
+    const formData = new FormData();
     const router = useRouter()
     const {userData} = useContext(AuthContext)
     const adminId = userData.user_id
-    const formData = new FormData();
     const [title, setTitle] = useState("")
     const [subtitle, setSubTitle] = useState("")
     const [status, setStatus] = useState("")
@@ -73,7 +73,7 @@ export default function AddPost() {
                     icon: 'success',
                     text: "پست تشکیل شد",
                 })
-                router.push("/admin/posts")
+                await router.push("/admin/posts")
             } else {
                 Nprogress.done()
                 await Swal.fire({

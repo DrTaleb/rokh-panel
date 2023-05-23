@@ -43,6 +43,7 @@ export default function Answer({data}) {
                 icon: 'error',
                 text: "لطفا پاسخ را پر کنید",
             })
+            Nprogress.done()
         } else {
             try {
                 const res = await fetch(`${process.env.LOCAL_URL}/api/admin/tickets/${router.query.ticketId}`, {
@@ -128,13 +129,13 @@ export default function Answer({data}) {
 
 export async function getServerSideProps(context) {
     const {params, req} = context
-    const userToken = req.cookies.userToken
+    const accessToken = req.cookies.accessToken
     const response = await fetch(`${process.env.SERVER_URL}/page/tickets/${params.ticketId}`, {
         method: "GET",
         credentials: 'include',
         headers: {
             'Content-Type': 'application/json; charset=UTF-8',
-            'Authorization': `Token ${userToken}`
+            'Authorization': `Bearer ${accessToken}`
         },
     })
     const data = await response.json()

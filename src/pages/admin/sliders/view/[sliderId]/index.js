@@ -9,6 +9,7 @@ export default function slideView({data}){
         router.push("/admin/sliders")
     }
 
+    console.log(data.image_url)
     return(
         <Container>
             <div className={"w-100"}>
@@ -20,7 +21,7 @@ export default function slideView({data}){
                     متن : {data.text}
                 </p>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img alt={""} className={"w-100 rounded mt-3"} src={`https://storage.iran.liara.space/hanousa/static/${data.image}`}/>
+                <img alt={""} className={"w-100 rounded mt-3"} src={`${process.env.SERVER_URL}${data.image_url}`}/>
             </div>
         </Container>
     )
@@ -28,14 +29,13 @@ export default function slideView({data}){
 
 export async function getServerSideProps (context){
     const {params,req} = context
-    const userToken = req.cookies.userToken
-    console.log(params.sliderId)
-    const response = await fetch(`https://server.hanousa.ir/page/slides/${params.sliderId}`,{
+    const accessToken = req.cookies.accessToken
+    const response = await fetch(`${process.env.SERVER_URL}/page/slides/${params.sliderId}`,{
         method : "GET",
         credentials : 'include',
         headers: {
             'Content-Type': 'application/json; charset=UTF-8',
-            'Authorization' : `Token ${userToken}`
+            'Authorization' : `Bearer ${accessToken}`
         },
     })
     const data = await response.json()

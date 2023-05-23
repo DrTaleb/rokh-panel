@@ -10,7 +10,7 @@ export const config = {
     }
 }
 export default async function Handler(req, res) {
-    const userToken = req.cookies.userToken
+    const accessToken = req.cookies.accessToken
     if (req.method === "PUT") {
         try {
             const form = formidable({multiples: false});
@@ -24,7 +24,7 @@ export default async function Handler(req, res) {
                 }
                 const data = await axios.put(`${process.env.SERVER_URL}/page/slides/${req.query.sliderId}/`, myFormData, {
                     headers: {
-                        'Authorization': `Token ${userToken}`,
+                        'Authorization': `Bearer ${accessToken}`,
                         'Content-Type': 'multipart/form-data'
                     },
                 })

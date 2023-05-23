@@ -10,14 +10,14 @@ export const config = {
     }
 }
 export default async function Handler(req, res) {
-    const userToken = req.cookies.userToken
+    const accessToken = req.cookies.accessToken
     if (req.method === "GET"){
         try {
             const dataResponse = await fetch(`${process.env.SERVER_URL}/page/mainsettings/`,{
                 method : "GET",
                 headers : {
                     'Content-Type': 'application/json; charset=UTF-8',
-                    'Authorization' : `Token ${userToken}`
+                    'Authorization' : `Bearer ${accessToken}`
                 }
             })
             const data = await dataResponse.json()
@@ -38,9 +38,9 @@ export default async function Handler(req, res) {
                 if (files.image){
                     await myFormData.append("image", fs.createReadStream(files.image.filepath), `${files.image.originalFilename}`)
                 }
-                const data = await axios.put('https://server.hanousa.ir/page/mainsettings/', myFormData, {
+                const data = await axios.put(`${process.env.SERVER_URL}/page/mainsettings/`, myFormData, {
                     headers: {
-                        'Authorization': `Token ${userToken}`,
+                        'Authorization': `Bearer ${accessToken}`,
                         'Content-Type': 'multipart/form-data'
                     },
                 })

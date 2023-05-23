@@ -1,5 +1,5 @@
 import {Badge, Box, Button, IconButton, Tooltip} from "@mui/material";
-import {useContext, useRef, useState} from "react";
+import {useContext, useEffect, useRef, useState} from "react";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import Avatar from "@mui/material/Avatar";
@@ -17,12 +17,28 @@ import ListAltIcon from '@mui/icons-material/ListAlt';
 import ConnectWithoutContactIcon from '@mui/icons-material/ConnectWithoutContact';
 import SettingsIcon from '@mui/icons-material/Settings';
 import AuthContext from "@/contexts/authContext";
-
+import {AdminPanelSettingsRounded} from "@mui/icons-material";
+import CardMembershipIcon from '@mui/icons-material/CardMembership';
+import ArtTrackIcon from '@mui/icons-material/ArtTrack';
 export default function PanelLayout({children}) {
 
 
-    const userData = {}
-    // const {userData, logOut} = useContext(AuthContext)
+    const {userData, logOut} = useContext(AuthContext)
+    const [role, setRole] = useState("")
+    useEffect(() => {
+        if (userData.is_superuser && userData.is_doctor) {
+            setRole("ادمین اصلی و پزشک")
+        } else if (userData.is_superuser) {
+            setRole("ادمین اصلی")
+        } else if (userData.is_staff && userData.is_doctor) {
+            setRole("ادمین و پزشک")
+        } else if (userData.is_staff) {
+            setRole("ادمین")
+        }else if (userData.is_doctor) {
+            setRole("پزشک")
+        }
+    }, [userData])
+
     const [anchorEl, setAnchorEl] = useState();
     const open = Boolean(anchorEl);
     const [profileOpener, setProfileOpener] = useState();
@@ -49,14 +65,14 @@ export default function PanelLayout({children}) {
     const routerPath = router.pathname
     return (
         <main className={"panel-body"}>
-            <nav className="navbar navbar-expand bg-main-blue py-1 fixed-top">
+            <nav className="navbar navbar-expand bg-secondary py-1 fixed-top">
                 <div className="container-fluid">
                     <div className="d-flex flex-row align-items-center gap-3">
                         <div className="panel-menu-icon active d-flex flex-column justify-content-center rounded"
                              onClick={menuClick} ref={toggleElement}>
                             <MenuIcon sx={{color: "var(--white)"}}></MenuIcon>
                         </div>
-                        <a className="text-decoration-none text-white" href="#">پنل مدیریت هانوسا</a>
+                        <a className="text-decoration-none text-white" href="#">پنل مدیریت کلینیک زیبایی رخ</a>
                     </div>
                     <div className="d-flex flex-row align-items-center gap-4">
                         <Menu
@@ -107,100 +123,151 @@ export default function PanelLayout({children}) {
                     <div className="panel-side-bar col-12 position-relative d-lg-flex">
                         <div className="panel-nav-item-parent col-12 d-flex flex-column ps-3 mt-5 mt-sm-2">
                             <div className="panel-menu-items-parent col-12">
-                                <div className="service-section-opener d-flex flex-row">
-                                    <div className="panel-title-parent w-100">
+                                {
+                                    userData.is_staff &&
+                                    <>
+                                        <div className="service-section-opener d-flex flex-row">
+                                            <div className="panel-title-parent w-100">
                                         <span
                                             className="panel-main-title- text-capitalize panel-header-title text-secondary">
                                            گزینه های دسترسی
                                         </span>
-                                    </div>
-                                    <span className="mt-1 ms-2">
-                                   <i className="fa fa-angle-down text-secondary"></i>
-                                </span>
-                                </div>
-                                <Link href={"/admin"}
-                                      className={`panel-side-bar-item text-decoration-none text-dark rounded gap-4 ps-3 ${routerPath.length === 6 && "active"}`}
-                                >
-                                    <GridViewIcon
-                                        className={`${routerPath.length === 6 && "text-danger"}`}></GridViewIcon>
-                                    <span className="text-secondary">داشبورد</span>
-                                </Link>
-                                {userData.is_superuser &&
-                                    <Link href={"/admin/admins"}
-                                          className={`panel-side-bar-item text-decoration-none text-dark rounded gap-4 ps-3 ${routerPath.includes("admins") && "active"}`}
-                                    >
-                                        <AdminPanelSettingsIcon
-                                            className={`${routerPath.includes("admins") && "text-danger"}`}></AdminPanelSettingsIcon>
-                                        <span className="text-secondary">لیست ادمین ها</span>
-                                    </Link>
+                                            </div>
+                                            <span className="mt-1 ms-2">
+                                               <i className="fa fa-angle-down text-secondary"></i>
+                                            </span>
+                                        </div>
+                                        <Link href={"/admin"}
+                                              className={`panel-side-bar-item text-decoration-none text-dark rounded gap-4 ps-3 ${routerPath.length === 6 && "active"}`}
+                                        >
+                                            <GridViewIcon
+                                                className={`${routerPath.length === 6 && "text-danger"}`}></GridViewIcon>
+                                            <span className="text-secondary">داشبورد</span>
+                                        </Link>
+                                        {userData.is_superuser &&
+                                            <Link href={"/admin/admins"}
+                                                  className={`panel-side-bar-item text-decoration-none text-dark rounded gap-4 ps-3 ${routerPath.includes("admins") && "active"}`}
+                                            >
+                                                <AdminPanelSettingsIcon
+                                                    className={`${routerPath.includes("admins") && "text-danger"}`}></AdminPanelSettingsIcon>
+                                                <span className="text-secondary">لیست کارکنان</span>
+                                            </Link>
+                                        }
+                                        <Link href={"/admin/sliders"}
+                                              className={`panel-side-bar-item text-decoration-none text-dark rounded gap-4 ps-3 ${routerPath.includes("sliders") && "active"}`}>
+                                            <LinearScaleIcon
+                                                className={`${routerPath.includes("sliders") && "text-danger"}`}
+                                            ></LinearScaleIcon>
+                                            <span className="text-secondary">اسلایدر ها</span>
+                                        </Link>
+                                        <Link href={"/admin/expertise"}
+                                              className={`panel-side-bar-item text-decoration-none text-dark rounded gap-4 ps-3 ${routerPath.includes("expertise") && "active"}`}>
+                                            <ArtTrackIcon
+                                                className={`${routerPath.includes("expertise") && "text-danger"}`}
+                                            ></ArtTrackIcon>
+                                            <span className="text-secondary">لیست تخصص ها</span>
+                                        </Link>
+                                        <Link href={"/admin/menus"}
+                                              className={`panel-side-bar-item text-decoration-none text-dark rounded gap-4 ps-3 ${routerPath.includes("menus") && "active"}`}>
+                                            <MenuIcon
+                                                className={`${routerPath.includes("menus") && "text-danger"}`}
+                                            ></MenuIcon>
+                                            <span className="text-secondary">منو ها</span>
+                                        </Link>
+                                        <Link href={"/admin/posts"}
+                                              className={`panel-side-bar-item text-decoration-none text-dark rounded gap-4 ps-3 ${routerPath.includes("posts") && "active"}`}>
+                                            <ListAltIcon
+                                                className={`${routerPath.includes("posts") && "text-danger"}`}
+                                            ></ListAltIcon>
+                                            <span className="text-secondary">پست ها</span>
+                                        </Link>
+                                        <Link href={"/admin/tickets"}
+                                              className={`panel-side-bar-item text-decoration-none text-dark rounded gap-4 ps-3 ${routerPath.includes("tickets") && "active"}`}>
+                                            <ConnectWithoutContactIcon
+                                                className={`${routerPath.includes("tickets") && "text-danger"}`}
+                                            ></ConnectWithoutContactIcon>
+                                            <span className="text-secondary">تیکت ها</span>
+                                        </Link>
+                                        {userData.is_superuser &&
+                                            <Link href={"/admin/setting"}
+                                                  className={`panel-side-bar-item text-decoration-none text-dark rounded gap-4 ps-3 ${routerPath.includes("setting") && "active"}`}>
+                                                <SettingsIcon
+                                                    className={`${routerPath.includes("setting") && "text-danger"}`}
+                                                ></SettingsIcon>
+                                                <span className="text-secondary">تنظیمات اصلی</span>
+                                            </Link>
+                                        }
+                                    </>
                                 }
-                                <Link href={"/admin/sliders"}
-                                      className={`panel-side-bar-item text-decoration-none text-dark rounded gap-4 ps-3 ${routerPath.includes("sliders") && "active"}`}>
-                                    <LinearScaleIcon
-                                        className={`${routerPath.includes("sliders") && "text-danger"}`}
-                                    ></LinearScaleIcon>
-                                    <span className="text-secondary">اسلایدر ها</span>
-                                </Link>
-                                <Link href={"/admin/menus"}
-                                      className={`panel-side-bar-item text-decoration-none text-dark rounded gap-4 ps-3 ${routerPath.includes("menus") && "active"}`}>
-                                    <MenuIcon
-                                        className={`${routerPath.includes("menus") && "text-danger"}`}
-                                    ></MenuIcon>
-                                    <span className="text-secondary">منو ها</span>
-                                </Link>
-                                {/*<Link href={"/admin/categories"}*/}
-                                {/*      className={`panel-side-bar-item text-decoration-none text-dark rounded gap-4 ps-3 ${routerPath.includes("categories") && "active"}`}>*/}
-                                {/*    <ReceiptLongIcon*/}
-                                {/*        className={`${routerPath.includes("categories") && "text-danger"}`}*/}
-                                {/*    ></ReceiptLongIcon>*/}
-                                {/*    <span className="text-secondary">فرم ها</span>*/}
-                                {/*</Link>*/}
-                                <Link href={"/admin/posts"}
-                                      className={`panel-side-bar-item text-decoration-none text-dark rounded gap-4 ps-3 ${routerPath.includes("posts") && "active"}`}>
-                                    <ListAltIcon
-                                        className={`${routerPath.includes("posts") && "text-danger"}`}
-                                    ></ListAltIcon>
-                                    <span className="text-secondary">پست ها</span>
-                                </Link>
-                                <Link href={"/admin/tickets"}
-                                      className={`panel-side-bar-item text-decoration-none text-dark rounded gap-4 ps-3 ${routerPath.includes("tickets") && "active"}`}>
-                                    <ConnectWithoutContactIcon
-                                        className={`${routerPath.includes("tickets") && "text-danger"}`}
-                                    ></ConnectWithoutContactIcon>
-                                    <span className="text-secondary">تیکت ها</span>
-                                </Link>
-                                {userData.is_superuser &&
-                                <Link href={"/admin/setting"}
-                                      className={`panel-side-bar-item text-decoration-none text-dark rounded gap-4 ps-3 ${routerPath.includes("setting") && "active"}`}>
-                                    <SettingsIcon
-                                        className={`${routerPath.includes("setting") && "text-danger"}`}
-                                    ></SettingsIcon>
-                                    <span className="text-secondary">تنظیمات اصلی</span>
-                                </Link>
+                                {
+                                    userData.is_doctor &&
+                                    <>
+                                        <div className="service-section-opener d-flex flex-row mt-3">
+                                            <div className="panel-title-parent w-100">
+                                        <span
+                                            className="panel-main-title- text-capitalize panel-header-title text-secondary">
+                                           پروفایل پزشکی
+                                        </span>
+                                            </div>
+                                            <span className="mt-1 ms-2">
+                                            <i className="fa fa-angle-down text-secondary"></i>
+                                        </span>
+                                        </div>
+                                        {
+                                            !userData.is_staff &&
+                                            <Link href={"/admin"}
+                                                  className={`panel-side-bar-item text-decoration-none text-dark rounded gap-4 ps-3 ${routerPath.length === 6 && "active"}`}
+                                            >
+                                                <GridViewIcon
+                                                    className={`${routerPath.length === 6 && "text-danger"}`}></GridViewIcon>
+                                                <span className="text-secondary">داشبورد</span>
+                                            </Link>
+                                        }
+                                        <Tooltip title={"در حال ادیت"}>
+                                            <div className={"opacity-25"}>
+                                                <Link href={""}
+                                                      className={`panel-side-bar-item text-decoration-none text-dark rounded gap-4 ps-3 ${routerPath.includes("profile-edit") && "active"}`}
+                                                >
+                                                    <AdminPanelSettingsRounded
+                                                        className={`${routerPath.includes("profile-edit") && "text-danger"}`}></AdminPanelSettingsRounded>
+                                                    <span className="text-secondary">تنظیمات پروفایل</span>
+                                                </Link>
+                                            </div>
+                                        </Tooltip>
+                                        <Link href={"/admin/example"}
+                                              className={`panel-side-bar-item text-decoration-none text-dark rounded gap-4 ps-3 ${routerPath.includes("example") && "active"}`}
+                                        >
+                                            <CardMembershipIcon
+                                                className={`${routerPath.includes("example") && "text-danger"}`}></CardMembershipIcon>
+                                            <span className="text-secondary">نمونه کارها</span>
+                                        </Link>
+                                    </>
                                 }
                             </div>
                         </div>
                     </div>
                 </div>
                 <div className="panel-content panel-w-content">
-                    <nav className="bg-white py-3 shadow-sm">
+                    <nav className="bg-white py-1 shadow-sm">
                         <div className="container">
                             <div className="d-flex flex-row justify-content-between align-items-center">
                                 <div className="d-flex flex-row align-items-center gap-2">
-                                    <Badge badgeContent={userData.is_superuser === true ? "ادمین" : "کارمند"}
-                                           color="success">
-                                        <Avatar sx={{width: 42, height: 42, color: "#fff"}}></Avatar>
-                                    </Badge>
-                                    <span className={"text-secondary"}>
-                                        {userData.name}
-                                    </span>
+                                    <Avatar sx={{width: 50, height: 50, color: "#fff"}}></Avatar>
+                                    <div className={"d-flex flex-column mt-2"}>
+                                        <small className={"text-info px-2 rounded bg-light"}>
+                                            {role}
+                                        </small>
+                                         <span className={"text-secondary fw-bolder px-2 mt-2"}>
+                                          {userData.username}
+                                         </span>
+                                    </div>
                                 </div>
                                 <>
                                     <Box sx={{display: 'flex', alignItems: 'center', textAlign: 'center'}}>
                                         <Tooltip title="منوی دسترسی">
                                             <Badge badgeContent={userData.name === null ? 1 : 0} color="error">
                                                 <Button
-                                                    color={"error"}
+                                                    color={"info"}
                                                     variant={"contained"}
                                                     onClick={handleClick}
                                                     sx={{ml: 2}}
@@ -219,6 +286,7 @@ export default function PanelLayout({children}) {
                                         PaperProps={{
                                             elevation: 0,
                                             sx: {
+                                                paddingX : "10px",
                                                 overflow: 'visible',
                                                 filter: 'drop-shadow(0px 2px 8px rgba(0,0,0,0.32))',
                                                 mt: 3,
@@ -247,35 +315,30 @@ export default function PanelLayout({children}) {
                                     >
                                         <MenuItem onClick={handleClose}>
                                             <ListItemIcon>
-                                                <Badge badgeContent={userData.is_staff && "ادمین"} color="success">
                                                     <Avatar sx={{width: 32, height: 32}}></Avatar>
-                                                </Badge>
                                             </ListItemIcon>
-                                            {userData.name}
+                                            {userData.username}
                                         </MenuItem>
                                         <Divider/>
-                                        <MenuItem onClick={handleClose}>
-                                            <Link href={"/"}
-                                                  className={"text-dark text-decoration-none d-flex flex-row align-items-center"}>
-                                                <ListItemIcon>
-                                                    <AdminPanelSettingsIcon color={"error"} fontSize="medium"/>
-                                                </ListItemIcon>
-                                                صفحه اصلی
-                                            </Link>
+                                        <MenuItem  onClick={handleClose}
+                                            // onClick={logOut}
+                                        >
+                                            <ListItemIcon>
+                                                <AdminPanelSettingsIcon color={"error"} fontSize="small"/>
+                                            </ListItemIcon>
+                                            صفحه اصلی
                                         </MenuItem>
                                         <MenuItem onClick={handleClose}>
                                             <Link href={"/account-setting"}
                                                   className={"text-dark text-decoration-none"}>
                                                 <ListItemIcon>
-                                                    <Badge badgeContent={userData.name === null ? 1 : 0} color="error">
                                                         <Settings color={"error"} fontSize="small"/>
-                                                    </Badge>
                                                 </ListItemIcon>
                                                 تنظیمات اکانت
                                             </Link>
                                         </MenuItem>
                                         <MenuItem
-                                            // onClick={logOut}
+                                            onClick={logOut}
                                         >
                                             <ListItemIcon>
                                                 <Logout color={"error"} fontSize="small"/>

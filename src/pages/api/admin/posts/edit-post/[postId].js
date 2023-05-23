@@ -10,7 +10,7 @@ export const config = {
     }
 }
 export default async function Handler(req, res) {
-    const userToken = req.cookies.userToken
+    const accessToken = req.cookies.accessToken
     if (req.method === "POST") {
         try {
             const form = formidable({multiples: false});
@@ -26,7 +26,7 @@ export default async function Handler(req, res) {
                 console.log(myFormData)
                 const data = await axios.put(`${process.env.SERVER_URL}/page/posts/${req.query.postId}/`, myFormData, {
                     headers: {
-                        'Authorization': `Token ${userToken}`,
+                        'Authorization': `Bearer ${accessToken}`,
                         'Content-Type': 'multipart/form-data'
                     },
                 })

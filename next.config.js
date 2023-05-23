@@ -3,7 +3,7 @@ const nextConfig = {
   reactStrictMode: true,
   env: {
     SERVER_URL: "https://server.rokhdental.ir",
-    LOCAL_URL: "http://localhost:3000",
+    LOCAL_URL: "https://rokh-panel.iran.liara.run",
   },
 }
 module.exports = nextConfig

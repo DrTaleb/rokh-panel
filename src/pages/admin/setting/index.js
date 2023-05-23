@@ -18,6 +18,7 @@ export default function MainSetting({data}) {
     }, [getData])
 
 
+    console.log(data)
     // form input -----------------------------------
     const [title, setTitle] = useState(DATA.name)
     const [titleError, setTitleError] = useState(false)
@@ -168,13 +169,13 @@ export default function MainSetting({data}) {
 }
 export async function getServerSideProps (context){
     const {req} = context
-    const userToken = req.cookies.userToken
+    const accessToken = req.cookies.accessToken
     const response = await fetch(`${process.env.SERVER_URL}/page/mainsettings/`,{
         method : "GET",
         credentials : 'include',
         headers: {
             'Content-Type': 'application/json; charset=UTF-8',
-            'Authorization' : `Token ${userToken}`
+            'Authorization' : `Bearer ${accessToken}`
         },
     })
     const data = await response.json()

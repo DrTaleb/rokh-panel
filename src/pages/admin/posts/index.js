@@ -33,7 +33,10 @@ export default function Posts() {
     useEffect(() => {
         fetch(`${process.env.LOCAL_URL}/api/admin/posts`)
             .then(res => res.json())
-            .then(data => setDATA(data))
+            .then(data => {
+                setDATA(data)
+                console.log(data)
+            })
     }, [getData])
 
     function createData(id, title, status, persian_date, author_name) {
@@ -77,7 +80,7 @@ export default function Posts() {
                             Swal.fire(
                                 '',
                                 "مشکلی وجود دارد دوباره تلاش کنید",
-                                'success'
+                                'error'
                             )
                         }
                     })

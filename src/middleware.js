@@ -2,7 +2,7 @@ import {NextRequest, NextResponse} from "next/server";
 import cookie from "cookie";
 
 
-export function middleware(req, res) {
+export async function middleware(req, res) {
 
     const accessToken = req.cookies.get("accessToken")
     const refreshToken = req.cookies.get("refreshToken")
